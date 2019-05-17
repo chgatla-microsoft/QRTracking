@@ -1,0 +1,12 @@
+{
+    "name": "Unity.XR.WindowsMR.Editor",
+    "references": [
+        "Unity.XR.WindowsMR"
+    ],
+    "optionalUnityReferences": [],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false
+}
