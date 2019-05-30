@@ -43,6 +43,10 @@ namespace QRTracking
         private System.Collections.Generic.SortedDictionary<System.Guid, QRCodesTrackerPlugin.QRCode> qrCodesList = new SortedDictionary<System.Guid, QRCodesTrackerPlugin.QRCode>();
 
         private QRTracker qrTracker;
+        private bool capabilityInitialized = false;
+#if WINDOWS_UWP
+        private Windows.Security.Authorization.AppCapabilityAccess.AppCapabilityAccessStatus accessStatus;
+#endif
 
         public System.Guid GetIdForQRCode(string qrCodeData)
         {
@@ -70,9 +74,23 @@ namespace QRTracking
         {
 
         }
-
+#if WINDOWS_UWP
+        async private void RequestCapability()
+        {
+            Windows.Security.Authorization.AppCapabilityAccess.AppCapability cap = Windows.Security.Authorization.AppCapabilityAccess.AppCapability.Create("webcam");
+            accessStatus = await cap.RequestAccessAsync();
+            capabilityInitialized = true;
+        }
+#endif
         // Use this for initialization
         protected virtual void Start()
+        {
+#if WINDOWS_UWP
+            RequestCapability();
+#endif
+        }
+
+        private void SetupQRTracking()
         {
             try
             {
@@ -82,10 +100,11 @@ namespace QRTracking
                 qrTracker.Updated += QrTracker_Updated;
                 qrTracker.Removed += QrTracker_Removed;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Debug.Log("QRCodesManager : exception starting the tracker " + ex.ToString());
             }
+
             if (AutoStartQRTracking)
             {
                 StartQRTracking();
@@ -94,7 +113,7 @@ namespace QRTracking
 
         public QRTrackerStartResult StartQRTracking()
         {
-            if (!IsTrackerRunning)
+            if (qrTracker != null && !IsTrackerRunning)
             {
                 int tries = 0;
                 do
@@ -119,6 +138,17 @@ namespace QRTracking
                     }
                 }
             }
+            else
+            {
+#if WINDOWS_UWP
+                if (accessStatus == Windows.Security.Authorization.AppCapabilityAccess.AppCapabilityAccessStatus.DeniedByUser ||
+                    accessStatus == Windows.Security.Authorization.AppCapabilityAccess.AppCapabilityAccessStatus.DeniedBySystem)
+                {
+                    StartResult = QRTrackerStartResult.AccessDenied;
+                    Debug.Log("QRCodesManager starting qrtracker result:" + StartResult);
+                }
+#endif
+            }
             return StartResult;
         }
 
@@ -127,8 +157,11 @@ namespace QRTracking
             if (IsTrackerRunning)
             {
                 IsTrackerRunning = false;
-                qrTracker.Stop();
-                qrCodesList.Clear();
+                if (qrTracker != null)
+                {
+                    qrTracker.Stop();
+                    qrCodesList.Clear();
+                }
                 StartResult = QRTrackerStartResult.DeviceNotConnected;
                 var handlers = QRCodesTrackingStateChanged;
                 if (handlers != null)
@@ -197,7 +230,24 @@ namespace QRTracking
                 handlers(this, QRCodeEventArgs.Create(args.Code));
             }
         }
-
+        private void Update()
+        {
+            if (qrTracker == null && capabilityInitialized)
+            {
+#if WINDOWS_UWP
+                if (accessStatus == Windows.Security.Authorization.AppCapabilityAccess.AppCapabilityAccessStatus.Allowed)
+                {
+#endif
+                SetupQRTracking();
+#if WINDOWS_UWP
+                }
+                else
+                {  
+                    Debug.Log("Webcam capability is needed : " + accessStatus);
+                }
+#endif
+            }
+        }
     }
 
 }

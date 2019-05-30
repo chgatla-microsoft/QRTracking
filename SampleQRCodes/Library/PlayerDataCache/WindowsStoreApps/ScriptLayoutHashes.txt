@@ -1,6 +1,6 @@
 WindowsStoreApps
 PlayerPath?
-D:/chgatla/Documents/Projects/QRTracking/SampleQRCodes/UWP1
+D:/chgatla/Documents/Projects/QRTracking/SampleQRCodes/UWP
 SceneListBegin?
 Assets/Scenes/QRCodesSample.unity
 SceneListEnd?
