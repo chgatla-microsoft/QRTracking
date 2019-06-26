@@ -13,7 +13,7 @@ namespace QRTracking
     [RequireComponent(typeof(QRTracking.SpatialGraphCoordinateSystem))]
     public class QRCode : MonoBehaviour
     {
-        public QRCodesTrackerPlugin.QRCode qrCode;
+        public Microsoft.MixedReality.QR.QRCode qrCode;
         private GameObject qrCodeCube;
 
         public float PhysicalSize;
@@ -40,8 +40,8 @@ namespace QRTracking
                 throw new System.Exception("QR Code Empty");
             }
 
-            PhysicalSize = qrCode.PhysicalSizeMeters;
-            CodeText = qrCode.Code;
+            PhysicalSize = qrCode.PhysicalSideLength;
+            CodeText = qrCode.Data;
 
             qrCodeCube = gameObject.transform.Find("Cube").gameObject;
             QRInfo = gameObject.transform.Find("QRInfo").gameObject;
@@ -51,7 +51,7 @@ namespace QRTracking
             QRTimeStamp = QRInfo.transform.Find("QRTimeStamp").gameObject.GetComponent<TextMesh>();
             QRSize = QRInfo.transform.Find("QRSize").gameObject.GetComponent<TextMesh>();
 
-            QRID.text = qrCode.Id.ToString();
+            QRID.text = qrCode.NodeId.ToString();
             QRText.text = CodeText;
 
             if (System.Uri.TryCreate(CodeText, System.UriKind.Absolute,out uriResult))
@@ -61,35 +61,25 @@ namespace QRTracking
             }
 
             QRVersion.text = "Ver: " + qrCode.Version;
-            QRSize.text = "Size:" + qrCode.PhysicalSizeMeters.ToString("F04") + "m";
-            QRTimeStamp.text = "Time:" + GetTimeStamp();
-            Debug.Log("Id= " + qrCode.Id + " PhysicalSize = " + PhysicalSize + " TimeStamp = " + qrCode.LastDetectedQPCTicks + " QRVersion = " + qrCode.Version + " QRData = " + CodeText);
-        }
-
-        string GetTimeStamp()
-        {
-            long EndingTime = System.Diagnostics.Stopwatch.GetTimestamp();
-            long ElapsedTime = EndingTime - (long)qrCode.LastDetectedQPCTicks;
-
-            double ElapsedSecs = ElapsedTime * (1.0f / System.Diagnostics.Stopwatch.Frequency);
-
-            return System.DateTime.Now.AddSeconds(-ElapsedSecs).ToString("MM/dd/yyyy HH:mm:ss.fff");
+            QRSize.text = "Size:" + qrCode.PhysicalSideLength.ToString("F04") + "m";
+            QRTimeStamp.text = "Time:" + qrCode.LastDetectedTime.ToString("MM/dd/yyyy HH:mm:ss.fff");
+            Debug.Log("Id= " + qrCode.NodeId + " PhysicalSize = " + PhysicalSize + " TimeStamp = " + qrCode.SystemRelativeLastDetectedTime.Ticks + " QRVersion = " + qrCode.Version + " QRData = " + CodeText);
         }
 
         void UpdatePropertiesDisplay()
         {
             // Update properties that change
-            if (qrCode != null && lastTimeStamp != qrCode.LastDetectedQPCTicks)
+            if (qrCode != null && lastTimeStamp != qrCode.SystemRelativeLastDetectedTime.Ticks)
             {
-                QRSize.text = "Size:" + qrCode.PhysicalSizeMeters.ToString("F04") + "m";
+                QRSize.text = "Size:" + qrCode.PhysicalSideLength.ToString("F04") + "m";
 
-                QRTimeStamp.text = "Time:" + GetTimeStamp();
-                PhysicalSize = qrCode.PhysicalSizeMeters;
-                Debug.Log("Id= " + qrCode.Id + " PhysicalSize = " + PhysicalSize + " TimeStamp = " + qrCode.LastDetectedQPCTicks);
+                QRTimeStamp.text = "Time:" + qrCode.LastDetectedTime.ToString("MM/dd/yyyy HH:mm:ss.fff");
+                PhysicalSize = qrCode.PhysicalSideLength;
+                Debug.Log("Id= " + qrCode.NodeId + " PhysicalSize = " + PhysicalSize + " TimeStamp = " + qrCode.SystemRelativeLastDetectedTime.Ticks + "Time1 = " + qrCode.LastDetectedTime.ToString("MM/dd/yyyy HH:mm:ss.fff"));
 
                 qrCodeCube.transform.localPosition = new Vector3(PhysicalSize / 2.0f, PhysicalSize / 2.0f, 0.0f);
                 qrCodeCube.transform.localScale = new Vector3(PhysicalSize, PhysicalSize, 0.005f);
-                lastTimeStamp = qrCode.LastDetectedQPCTicks;
+                lastTimeStamp = qrCode.SystemRelativeLastDetectedTime.Ticks;
                 QRInfo.transform.localScale = new Vector3(PhysicalSize/0.2f, PhysicalSize / 0.2f, PhysicalSize / 0.2f);
             }
         }

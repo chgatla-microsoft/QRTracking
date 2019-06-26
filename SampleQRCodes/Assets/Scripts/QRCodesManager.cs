@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 using UnityEngine;
 
-using QRCodesTrackerPlugin;
+using Microsoft.MixedReality.QR;
 namespace QRTracking
 {
     public static class QRCodeEventArgs
@@ -33,16 +33,16 @@ namespace QRTracking
         public bool AutoStartQRTracking = true;
 
         public bool IsTrackerRunning { get; private set; }
-        public QRCodesTrackerPlugin.QRTrackerStartResult StartResult { get; private set; }
+        public Microsoft.MixedReality.QR.QRCodeWatcherStartResult StartResult { get; private set; }
 
         public event EventHandler<bool> QRCodesTrackingStateChanged;
-        public event EventHandler<QRCodeEventArgs<QRCodesTrackerPlugin.QRCode>> QRCodeAdded;
-        public event EventHandler<QRCodeEventArgs<QRCodesTrackerPlugin.QRCode>> QRCodeUpdated;
-        public event EventHandler<QRCodeEventArgs<QRCodesTrackerPlugin.QRCode>> QRCodeRemoved;
+        public event EventHandler<QRCodeEventArgs<Microsoft.MixedReality.QR.QRCode>> QRCodeAdded;
+        public event EventHandler<QRCodeEventArgs<Microsoft.MixedReality.QR.QRCode>> QRCodeUpdated;
+        public event EventHandler<QRCodeEventArgs<Microsoft.MixedReality.QR.QRCode>> QRCodeRemoved;
 
-        private System.Collections.Generic.SortedDictionary<System.Guid, QRCodesTrackerPlugin.QRCode> qrCodesList = new SortedDictionary<System.Guid, QRCodesTrackerPlugin.QRCode>();
+        private System.Collections.Generic.SortedDictionary<System.Guid, Microsoft.MixedReality.QR.QRCode> qrCodesList = new SortedDictionary<System.Guid, Microsoft.MixedReality.QR.QRCode>();
 
-        private QRTracker qrTracker;
+        private QRCodeWatcher qrTracker;
         private bool capabilityInitialized = false;
 #if WINDOWS_UWP
         private Windows.Security.Authorization.AppCapabilityAccess.AppCapabilityAccessStatus accessStatus;
@@ -54,7 +54,7 @@ namespace QRTracking
             {
                 foreach (var ite in qrCodesList)
                 {
-                    if (ite.Value.Code == qrCodeData)
+                    if (ite.Value.Data == qrCodeData)
                     {
                         return ite.Key;
                     }
@@ -63,11 +63,11 @@ namespace QRTracking
             return new System.Guid();
         }
 
-        public System.Collections.Generic.IList<QRCodesTrackerPlugin.QRCode> GetList()
+        public System.Collections.Generic.IList<Microsoft.MixedReality.QR.QRCode> GetList()
         {
             lock (qrCodesList)
             {
-                return new List<QRCodesTrackerPlugin.QRCode>(qrCodesList.Values);
+                return new List<Microsoft.MixedReality.QR.QRCode>(qrCodesList.Values);
             }
         }
         protected void Awake()
@@ -94,11 +94,12 @@ namespace QRTracking
         {
             try
             {
-                qrTracker = new QRTracker();
+                qrTracker = new QRCodeWatcher();
                 IsTrackerRunning = false;
-                qrTracker.Added += QrTracker_Added;
-                qrTracker.Updated += QrTracker_Updated;
-                qrTracker.Removed += QrTracker_Removed;
+                qrTracker.Added += QRCodeWatcher_Added;
+                qrTracker.Updated += QRCodeWatcher_Updated;
+                qrTracker.Removed += QRCodeWatcher_Removed;
+                qrTracker.EnumerationCompleted += QrTracker_EnumerationCompleted;
             }
             catch (Exception ex)
             {
@@ -111,23 +112,28 @@ namespace QRTracking
             }
         }
 
-        public QRTrackerStartResult StartQRTracking()
+        public void StartQRTracking()
         {
             if (qrTracker != null && !IsTrackerRunning)
             {
                 int tries = 0;
                 do
                 {
-                    Debug.Log("QRCodesManager starting qrtracker");
+                    Debug.Log("QRCodesManager starting QRCodeWatcher");
                     StartResult = (qrTracker.Start());
-                    Debug.Log("QRCodesManager starting qrtracker result:" + StartResult);
-                    if (StartResult == QRTrackerStartResult.DeviceNotConnected)
+                    Debug.Log("QRCodesManager starting QRCodeWatcher result:" + StartResult);
+
+                    if (StartResult == QRCodeWatcherStartResult.DeviceNotConnected)
                     {
                         System.Threading.Thread.Sleep(500);
                     }
+                    else
+                    {
+                        break;
+                    }
                 } while (++tries <= 3);
 
-                if (StartResult == QRTrackerStartResult.Success)
+                if (StartResult == QRCodeWatcherStartResult.Success)
                 {
                     IsTrackerRunning = true;
                     
@@ -144,12 +150,12 @@ namespace QRTracking
                 if (accessStatus == Windows.Security.Authorization.AppCapabilityAccess.AppCapabilityAccessStatus.DeniedByUser ||
                     accessStatus == Windows.Security.Authorization.AppCapabilityAccess.AppCapabilityAccessStatus.DeniedBySystem)
                 {
-                    StartResult = QRTrackerStartResult.AccessDenied;
-                    Debug.Log("QRCodesManager starting qrtracker result:" + StartResult);
+                    StartResult = QRCodeWatcherStartResult.AccessDenied;
+                    Debug.Log("QRCodesManager starting QRCodeWatcher result:" + StartResult);
                 }
 #endif
             }
-            return StartResult;
+
         }
 
         public void StopQRTracking()
@@ -162,7 +168,7 @@ namespace QRTracking
                     qrTracker.Stop();
                     qrCodesList.Clear();
                 }
-                StartResult = QRTrackerStartResult.DeviceNotConnected;
+                StartResult = QRCodeWatcherStartResult.DeviceNotConnected;
                 var handlers = QRCodesTrackingStateChanged;
                 if (handlers != null)
                 {
@@ -171,16 +177,16 @@ namespace QRTracking
             }
         }
 
-        private void QrTracker_Removed(QRCodeRemovedEventArgs args)
+        private void QRCodeWatcher_Removed(QRCodeRemovedEventArgs args)
         {
-            Debug.Log("QRCodesManager QrTracker_Removed");
+            Debug.Log("QRCodesManager QRCodeWatcher_Removed");
 
             bool found = false;
             lock (qrCodesList)
             {
-                if (qrCodesList.ContainsKey(args.Code.Id))
+                if (qrCodesList.ContainsKey(args.Code.NodeId))
                 {
-                    qrCodesList.Remove(args.Code.Id);
+                    qrCodesList.Remove(args.Code.NodeId);
                 }
             }
             if (found)
@@ -193,17 +199,17 @@ namespace QRTracking
             }
         }
 
-        private void QrTracker_Updated(QRCodeUpdatedEventArgs args)
+        private void QRCodeWatcher_Updated(QRCodeUpdatedEventArgs args)
         {
-            Debug.Log("QRCodesManager QrTracker_Updated");
+            Debug.Log("QRCodesManager QRCodeWatcher_Updated");
 
             bool found = false;
             lock (qrCodesList)
             {
-                if (qrCodesList.ContainsKey(args.Code.Id))
+                if (qrCodesList.ContainsKey(args.Code.NodeId))
                 {
                     found = true;
-                    qrCodesList[args.Code.Id] = args.Code;
+                    qrCodesList[args.Code.NodeId] = args.Code;
                 }
             }
             if (found)
@@ -216,13 +222,13 @@ namespace QRTracking
             }
         }
 
-        private void QrTracker_Added(QRCodeAddedEventArgs args)
+        private void QRCodeWatcher_Added(QRCodeAddedEventArgs args)
         {
-            Debug.Log("QRCodesManager QrTracker_Added");
+            Debug.Log("QRCodesManager QRCodeWatcher_Added");
 
             lock (qrCodesList)
             {
-                qrCodesList[args.Code.Id] = args.Code;
+                qrCodesList[args.Code.NodeId] = args.Code;
             }
             var handlers = QRCodeAdded;
             if (handlers != null)
@@ -230,6 +236,12 @@ namespace QRTracking
                 handlers(this, QRCodeEventArgs.Create(args.Code));
             }
         }
+
+        private void QrTracker_EnumerationCompleted()
+        {
+            Debug.Log("QRCodesManager QrTracker_EnumerationCompleted");
+        }
+
         private void Update()
         {
             if (qrTracker == null && capabilityInitialized)
@@ -238,7 +250,7 @@ namespace QRTracking
                 if (accessStatus == Windows.Security.Authorization.AppCapabilityAccess.AppCapabilityAccessStatus.Allowed)
                 {
 #endif
-                SetupQRTracking();
+                    SetupQRTracking();
 #if WINDOWS_UWP
                 }
                 else

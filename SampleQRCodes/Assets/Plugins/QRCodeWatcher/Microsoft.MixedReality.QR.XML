@@ -1,0 +1,170 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Microsoft.MixedReality.QR.Placeholder</name>
+    </assembly>
+    <members>
+        <member name="T:Microsoft.MixedReality.QR.QRCode">
+            <summary>
+            Encapsulates information about a labeled spatial anchored element.
+            </summary>
+            <remarks>
+            This type if the 'glue' between spatial anchors (which have no meaning attached to them) and App Holograms.
+            SpatialEntity are designed to work as 'spatial labels' in the world. Proximity can be used to discover content attached to SpatialAnchors.
+            In addition, SpatialEntities can be shared across devices/users.
+            </remarks>
+        </member>
+        <member name="P:Microsoft.MixedReality.QR.QRCode.NodeId">
+            <summary>
+            Unique id that identifies this QR code for this session.
+            </summary>
+        </member>
+        <member name="P:Microsoft.MixedReality.QR.QRCode.Version">
+            <summary>
+            Version of this QR code.
+            </summary>
+        </member>
+        <member name="P:Microsoft.MixedReality.QR.QRCode.PhysicalSideLength">
+            <summary>
+            Physical width or height of this QR code in Meters.
+            </summary>
+        </member>
+        <member name="P:Microsoft.MixedReality.QR.QRCode.Data">
+            <summary>
+            QR code Data.
+            </summary>
+        </member>
+        <member name="P:Microsoft.MixedReality.QR.QRCode.RawData">
+            <summary>
+            QR code CodeRawData this is the error corrected raw data bytes.
+            Used when the platform is unable to decode the encoding and user can
+            decode as needed.
+            </summary>
+        </member>
+        <member name="P:Microsoft.MixedReality.QR.QRCode.SystemRelativeLastDetectedTime">
+            <summary>
+            QR code last detected QPC ticks.
+            </summary>
+        </member>
+        <member name="T:Microsoft.MixedReality.QR.QRCodeAddedEventArgs">
+            <summary>
+            The type of a QR Code added event.
+            </summary>
+        </member>
+        <member name="P:Microsoft.MixedReality.QR.QRCodeAddedEventArgs.Code">
+            <summary>
+            Gets the QR Code that was added
+            </summary>
+        </member>
+        <member name="T:Microsoft.MixedReality.QR.QRCodeRemovedEventArgs">
+            <summary>
+            The type of a QR Code removed event.
+            </summary>
+        </member>
+        <member name="P:Microsoft.MixedReality.QR.QRCodeRemovedEventArgs.Code">
+            <summary>
+            Gets the QR Code that was removed.
+            </summary>
+        </member>
+        <member name="T:Microsoft.MixedReality.QR.QRCodeUpdatedEventArgs">
+            <summary>
+            The type of a QR Code updated event.
+            </summary>
+        </member>
+        <member name="P:Microsoft.MixedReality.QR.QRCodeUpdatedEventArgs.Code">
+            <summary>
+            Gets the QR Code that was updated.
+            </summary>
+        </member>
+        <member name="T:Microsoft.MixedReality.QR.QRCodeAddedHandler">
+            <summary>
+            A callback for handling the QR Code added event.
+            </summary>
+            <param name="args">The event arguments</param>
+        </member>
+        <member name="T:Microsoft.MixedReality.QR.QRCodeRemovedHandler">
+            <summary>
+            A callback for handling the QR Code removed event.
+            </summary>
+            <param name="args">The event arguments</param>
+        </member>
+        <member name="T:Microsoft.MixedReality.QR.QRCodeUpdatedHandler">
+            <summary>
+            A callback for handling the QR Code updated event.
+            </summary>
+            <param name="args">The event arguments</param>
+        </member>
+        <member name="T:Microsoft.MixedReality.QR.QRCodeWatcherStartResult">
+            <summary>
+            Enumerates the possible results of a start of QRTracker.
+            </summary>
+        </member>
+        <member name="F:Microsoft.MixedReality.QR.QRCodeWatcherStartResult.Success">
+            <summary>
+            The start has succeeded.
+            </summary>
+        </member>
+        <member name="F:Microsoft.MixedReality.QR.QRCodeWatcherStartResult.DeviceNotConnected">
+            <summary>
+             The currently no device is connected.
+            </summary>
+        </member>
+        <member name="F:Microsoft.MixedReality.QR.QRCodeWatcherStartResult.FeatureNotSupported">
+            <summary>
+            The QRTracking Feature is not supported by the current HMD driver
+            systems
+            </summary>
+        </member>
+        <member name="F:Microsoft.MixedReality.QR.QRCodeWatcherStartResult.AccessDenied">
+            <summary>
+            The access is denied. Administrator needs to enable QR tracker feature.
+            </summary>
+        </member>
+        <member name="T:Microsoft.MixedReality.QR.QRCodeWatcher">
+            <summary>
+            QRTracker
+            </summary>
+        </member>
+        <member name="M:Microsoft.MixedReality.QR.QRCodeWatcher.#ctor">
+            <summary>
+            Constructs a new QRTracker.
+            </summary>
+        </member>
+        <member name="M:Microsoft.MixedReality.QR.QRCodeWatcher.Start">
+            <summary>
+            Start the QRTracker. Returns QRTrackerStartResult.
+            </summary>
+            <remarks>
+            </remarks>
+        </member>
+        <member name="M:Microsoft.MixedReality.QR.QRCodeWatcher.Stop">
+            <summary>
+            Stops tracking QR codes.
+            </summary>
+            <remarks>
+            </remarks>
+        </member>
+        <member name="M:Microsoft.MixedReality.QR.QRCodeWatcher.GetList">
+            <summary>
+            Get the list of QR codes detected.
+            </summary>
+            <remarks>
+            </remarks>
+        </member>
+        <member name="E:Microsoft.MixedReality.QR.QRCodeWatcher.Added">
+            <summary>
+            Event representing the addition of a QR Code.
+            </summary>
+        </member>
+        <member name="E:Microsoft.MixedReality.QR.QRCodeWatcher.Removed">
+            <summary>
+            Event representing the removal of a QR Code.
+            </summary>
+        </member>
+        <member name="E:Microsoft.MixedReality.QR.QRCodeWatcher.Updated">
+            <summary>
+            Event representing the update of a QR Code.
+            </summary>
+        </member>
+    </members>
+</doc>

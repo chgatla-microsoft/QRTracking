@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 using UnityEngine;
 
-using QRCodesTrackerPlugin;
+using Microsoft.MixedReality.QR;
 namespace QRTracking
 {
     public class QRCodesSetup : MonoBehaviour

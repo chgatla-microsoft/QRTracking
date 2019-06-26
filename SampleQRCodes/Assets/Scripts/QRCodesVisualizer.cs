@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 using UnityEngine;
 
-using QRCodesTrackerPlugin;
+using Microsoft.MixedReality.QR;
 namespace QRTracking
 {
     public class QRCodesVisualizer : MonoBehaviour
@@ -23,9 +23,9 @@ namespace QRTracking
                 Removed
             };
             public Type type;
-            public QRCodesTrackerPlugin.QRCode qrCode;
+            public Microsoft.MixedReality.QR.QRCode qrCode;
 
-            public ActionData(Type type, QRCodesTrackerPlugin.QRCode qRCode) : this()
+            public ActionData(Type type, Microsoft.MixedReality.QR.QRCode qRCode) : this()
             {
                 this.type = type;
                 qrCode = qRCode;
@@ -61,7 +61,7 @@ namespace QRTracking
             }
         }
 
-        private void Instance_QRCodeAdded(object sender, QRCodeEventArgs<QRCodesTrackerPlugin.QRCode> e)
+        private void Instance_QRCodeAdded(object sender, QRCodeEventArgs<Microsoft.MixedReality.QR.QRCode> e)
         {
             Debug.Log("QRCodesVisualizer Instance_QRCodeAdded");
 
@@ -71,7 +71,7 @@ namespace QRTracking
             }
         }
 
-        private void Instance_QRCodeUpdated(object sender, QRCodeEventArgs<QRCodesTrackerPlugin.QRCode> e)
+        private void Instance_QRCodeUpdated(object sender, QRCodeEventArgs<Microsoft.MixedReality.QR.QRCode> e)
         {
             Debug.Log("QRCodesVisualizer Instance_QRCodeUpdated");
 
@@ -81,7 +81,7 @@ namespace QRTracking
             }
         }
 
-        private void Instance_QRCodeRemoved(object sender, QRCodeEventArgs<QRCodesTrackerPlugin.QRCode> e)
+        private void Instance_QRCodeRemoved(object sender, QRCodeEventArgs<Microsoft.MixedReality.QR.QRCode> e)
         {
             Debug.Log("QRCodesVisualizer Instance_QRCodeRemoved");
 
@@ -101,26 +101,26 @@ namespace QRTracking
                     if (action.type == ActionData.Type.Added)
                     {
                         GameObject qrCodeObject = Instantiate(qrCodePrefab, new Vector3(0, 0, 0), Quaternion.identity);
-                        qrCodeObject.GetComponent<SpatialGraphCoordinateSystem>().Id = action.qrCode.Id;
+                        qrCodeObject.GetComponent<SpatialGraphCoordinateSystem>().Id = action.qrCode.NodeId;
                         qrCodeObject.GetComponent<QRCode>().qrCode = action.qrCode;
-                        qrCodesObjectsList.Add(action.qrCode.Id, qrCodeObject);
+                        qrCodesObjectsList.Add(action.qrCode.NodeId, qrCodeObject);
                     }
                     else if (action.type == ActionData.Type.Updated)
                     {
-                        if (!qrCodesObjectsList.ContainsKey(action.qrCode.Id))
+                        if (!qrCodesObjectsList.ContainsKey(action.qrCode.NodeId))
                         {
                             GameObject qrCodeObject = Instantiate(qrCodePrefab, new Vector3(0, 0, 0), Quaternion.identity);
-                            qrCodeObject.GetComponent<SpatialGraphCoordinateSystem>().Id = action.qrCode.Id;
+                            qrCodeObject.GetComponent<SpatialGraphCoordinateSystem>().Id = action.qrCode.NodeId;
                             qrCodeObject.GetComponent<QRCode>().qrCode = action.qrCode;
-                            qrCodesObjectsList.Add(action.qrCode.Id, qrCodeObject);
+                            qrCodesObjectsList.Add(action.qrCode.NodeId, qrCodeObject);
                         }
                     }
                     else if (action.type == ActionData.Type.Removed)
                     {
-                        if (qrCodesObjectsList.ContainsKey(action.qrCode.Id))
+                        if (qrCodesObjectsList.ContainsKey(action.qrCode.NodeId))
                         {
-                            Destroy(qrCodesObjectsList[action.qrCode.Id]);
-                            qrCodesObjectsList.Remove(action.qrCode.Id);
+                            Destroy(qrCodesObjectsList[action.qrCode.NodeId]);
+                            qrCodesObjectsList.Remove(action.qrCode.NodeId);
                         }
                     }
                 }
