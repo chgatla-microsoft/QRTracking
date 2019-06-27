@@ -99,7 +99,7 @@ namespace QRTracking
                 qrTracker.Added += QRCodeWatcher_Added;
                 qrTracker.Updated += QRCodeWatcher_Updated;
                 qrTracker.Removed += QRCodeWatcher_Removed;
-                qrTracker.EnumerationCompleted += QrTracker_EnumerationCompleted;
+                qrTracker.EnumerationCompleted += QRCodeWatcher_EnumerationCompleted;
             }
             catch (Exception ex)
             {
@@ -177,7 +177,7 @@ namespace QRTracking
             }
         }
 
-        private void QRCodeWatcher_Removed(QRCodeRemovedEventArgs args)
+        private void QRCodeWatcher_Removed(object sender, QRCodeRemovedEventArgs args)
         {
             Debug.Log("QRCodesManager QRCodeWatcher_Removed");
 
@@ -187,6 +187,7 @@ namespace QRTracking
                 if (qrCodesList.ContainsKey(args.Code.NodeId))
                 {
                     qrCodesList.Remove(args.Code.NodeId);
+                    found = true;
                 }
             }
             if (found)
@@ -199,7 +200,7 @@ namespace QRTracking
             }
         }
 
-        private void QRCodeWatcher_Updated(QRCodeUpdatedEventArgs args)
+        private void QRCodeWatcher_Updated(object sender, QRCodeUpdatedEventArgs args)
         {
             Debug.Log("QRCodesManager QRCodeWatcher_Updated");
 
@@ -222,7 +223,7 @@ namespace QRTracking
             }
         }
 
-        private void QRCodeWatcher_Added(QRCodeAddedEventArgs args)
+        private void QRCodeWatcher_Added(object sender, QRCodeAddedEventArgs args)
         {
             Debug.Log("QRCodesManager QRCodeWatcher_Added");
 
@@ -237,7 +238,7 @@ namespace QRTracking
             }
         }
 
-        private void QrTracker_EnumerationCompleted()
+        private void QRCodeWatcher_EnumerationCompleted(object sender, object e)
         {
             Debug.Log("QRCodesManager QrTracker_EnumerationCompleted");
         }
