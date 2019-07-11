@@ -101,26 +101,26 @@ namespace QRTracking
                     if (action.type == ActionData.Type.Added)
                     {
                         GameObject qrCodeObject = Instantiate(qrCodePrefab, new Vector3(0, 0, 0), Quaternion.identity);
-                        qrCodeObject.GetComponent<SpatialGraphCoordinateSystem>().Id = action.qrCode.NodeId;
+                        qrCodeObject.GetComponent<SpatialGraphCoordinateSystem>().Id = action.qrCode.SpatialGraphNodeId;
                         qrCodeObject.GetComponent<QRCode>().qrCode = action.qrCode;
-                        qrCodesObjectsList.Add(action.qrCode.NodeId, qrCodeObject);
+                        qrCodesObjectsList.Add(action.qrCode.Id, qrCodeObject);
                     }
                     else if (action.type == ActionData.Type.Updated)
                     {
-                        if (!qrCodesObjectsList.ContainsKey(action.qrCode.NodeId))
+                        if (!qrCodesObjectsList.ContainsKey(action.qrCode.Id))
                         {
                             GameObject qrCodeObject = Instantiate(qrCodePrefab, new Vector3(0, 0, 0), Quaternion.identity);
-                            qrCodeObject.GetComponent<SpatialGraphCoordinateSystem>().Id = action.qrCode.NodeId;
+                            qrCodeObject.GetComponent<SpatialGraphCoordinateSystem>().Id = action.qrCode.Id;
                             qrCodeObject.GetComponent<QRCode>().qrCode = action.qrCode;
-                            qrCodesObjectsList.Add(action.qrCode.NodeId, qrCodeObject);
+                            qrCodesObjectsList.Add(action.qrCode.Id, qrCodeObject);
                         }
                     }
                     else if (action.type == ActionData.Type.Removed)
                     {
-                        if (qrCodesObjectsList.ContainsKey(action.qrCode.NodeId))
+                        if (qrCodesObjectsList.ContainsKey(action.qrCode.Id))
                         {
-                            Destroy(qrCodesObjectsList[action.qrCode.NodeId]);
-                            qrCodesObjectsList.Remove(action.qrCode.NodeId);
+                            Destroy(qrCodesObjectsList[action.qrCode.Id]);
+                            qrCodesObjectsList.Remove(action.qrCode.Id);
                         }
                     }
                 }

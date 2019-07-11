@@ -14,14 +14,19 @@
             In addition, SpatialEntities can be shared across devices/users.
             </remarks>
         </member>
-        <member name="P:Microsoft.MixedReality.QR.QRCode.NodeId">
+        <member name="P:Microsoft.MixedReality.QR.QRCode.Id">
             <summary>
             Unique id that identifies this QR code for this session.
             </summary>
         </member>
+        <member name="P:Microsoft.MixedReality.QR.QRCode.SpatialGraphNodeId">
+            <summary>
+            Spatial graph node id that for this QR code to create a coordinate system.
+            </summary>
+        </member>
         <member name="P:Microsoft.MixedReality.QR.QRCode.Version">
             <summary>
-            Version of this QR code.
+            Version of this QR code. Version 1 -40 are regular QRCodes and 41-44 are the Micro QRCode 1-4
             </summary>
         </member>
         <member name="P:Microsoft.MixedReality.QR.QRCode.PhysicalSideLength">
@@ -34,16 +39,26 @@
             QR code Data.
             </summary>
         </member>
-        <member name="P:Microsoft.MixedReality.QR.QRCode.RawData">
+        <member name="P:Microsoft.MixedReality.QR.QRCode.RawDataSize">
             <summary>
-            QR code CodeRawData this is the error corrected raw data bytes.
+            Size of the RawData of this QR code.
+            </summary>
+        </member>
+        <member name="M:Microsoft.MixedReality.QR.QRCode.GetRawData(System.Byte[])">
+            <summary>
+            QR code Get the CodeRawData copy, this is the error corrected raw data bytes.
             Used when the platform is unable to decode the encoding and user can
             decode as needed.
             </summary>
         </member>
         <member name="P:Microsoft.MixedReality.QR.QRCode.SystemRelativeLastDetectedTime">
             <summary>
-            QR code last detected QPC ticks.
+            QR code last detected system relative time in 100ns ticks.
+            </summary>
+        </member>
+        <member name="P:Microsoft.MixedReality.QR.QRCode.LastDetectedTime">
+            <summary>
+            QR code last detected time.
             </summary>
         </member>
         <member name="T:Microsoft.MixedReality.QR.QRCodeAddedEventArgs">
@@ -76,54 +91,47 @@
             Gets the QR Code that was updated.
             </summary>
         </member>
-        <member name="T:Microsoft.MixedReality.QR.QRCodeAddedHandler">
+        <member name="T:Microsoft.MixedReality.QR.QRCodeWatcherAccessStatus">
             <summary>
-            A callback for handling the QR Code added event.
-            </summary>
-            <param name="args">The event arguments</param>
-        </member>
-        <member name="T:Microsoft.MixedReality.QR.QRCodeRemovedHandler">
-            <summary>
-            A callback for handling the QR Code removed event.
-            </summary>
-            <param name="args">The event arguments</param>
-        </member>
-        <member name="T:Microsoft.MixedReality.QR.QRCodeUpdatedHandler">
-            <summary>
-            A callback for handling the QR Code updated event.
-            </summary>
-            <param name="args">The event arguments</param>
-        </member>
-        <member name="T:Microsoft.MixedReality.QR.QRCodeWatcherStartResult">
-            <summary>
-            Enumerates the possible results of a start of QRTracker.
+            Enumerates the possible results of a request access.
             </summary>
         </member>
-        <member name="F:Microsoft.MixedReality.QR.QRCodeWatcherStartResult.Success">
+        <member name="F:Microsoft.MixedReality.QR.QRCodeWatcherAccessStatus.DeniedBySystem">
             <summary>
-            The start has succeeded.
+            DeniedBySystem.
             </summary>
         </member>
-        <member name="F:Microsoft.MixedReality.QR.QRCodeWatcherStartResult.DeviceNotConnected">
+        <member name="F:Microsoft.MixedReality.QR.QRCodeWatcherAccessStatus.NotDeclaredByApp">
             <summary>
-             The currently no device is connected.
+            NotDeclaredByApp.
             </summary>
         </member>
-        <member name="F:Microsoft.MixedReality.QR.QRCodeWatcherStartResult.FeatureNotSupported">
+        <member name="F:Microsoft.MixedReality.QR.QRCodeWatcherAccessStatus.DeniedByUser">
             <summary>
-            The QRTracking Feature is not supported by the current HMD driver
-            systems
+            DeniedByUser.
             </summary>
         </member>
-        <member name="F:Microsoft.MixedReality.QR.QRCodeWatcherStartResult.AccessDenied">
+        <member name="F:Microsoft.MixedReality.QR.QRCodeWatcherAccessStatus.UserPromptRequired">
             <summary>
-            The access is denied. Administrator needs to enable QR tracker feature.
+            UserPromptRequired.
+            </summary>
+        </member>
+        <member name="F:Microsoft.MixedReality.QR.QRCodeWatcherAccessStatus.Allowed">
+            <summary>
+            Allowed.
             </summary>
         </member>
         <member name="T:Microsoft.MixedReality.QR.QRCodeWatcher">
             <summary>
             QRTracker
             </summary>
+        </member>
+        <member name="M:Microsoft.MixedReality.QR.QRCodeWatcher.IsSupported">
+            <summary>
+            Is QR Codes feature supported.
+            </summary>
+            <remarks>
+            </remarks>
         </member>
         <member name="M:Microsoft.MixedReality.QR.QRCodeWatcher.#ctor">
             <summary>
@@ -132,7 +140,11 @@
         </member>
         <member name="M:Microsoft.MixedReality.QR.QRCodeWatcher.Start">
             <summary>
-            Start the QRTracker. Returns QRTrackerStartResult.
+            Starts tracking QR codes
+            Start should only be called once the RequestAccessAsync has succeeded.
+            Should not be called if the feature is not supported, check the IsSupported to see 
+             if this feature is supported.
+            Raises exceptions E_ACCESSDENIED, E_NOT_VALID_STATE, ERROR_NOT_SUPPORTED
             </summary>
             <remarks>
             </remarks>
@@ -164,6 +176,11 @@
         <member name="E:Microsoft.MixedReality.QR.QRCodeWatcher.Updated">
             <summary>
             Event representing the update of a QR Code.
+            </summary>
+        </member>
+        <member name="E:Microsoft.MixedReality.QR.QRCodeWatcher.EnumerationCompleted">
+            <summary>
+            Event representing the Enumeration of QR Codes completed.
             </summary>
         </member>
     </members>

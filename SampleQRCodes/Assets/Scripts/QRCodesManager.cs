@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 using Microsoft.MixedReality.QR;
+
 namespace QRTracking
 {
     public static class QRCodeEventArgs
@@ -33,7 +34,8 @@ namespace QRTracking
         public bool AutoStartQRTracking = true;
 
         public bool IsTrackerRunning { get; private set; }
-        public Microsoft.MixedReality.QR.QRCodeWatcherStartResult StartResult { get; private set; }
+
+        public bool IsSupported { get; private set; }
 
         public event EventHandler<bool> QRCodesTrackingStateChanged;
         public event EventHandler<QRCodeEventArgs<Microsoft.MixedReality.QR.QRCode>> QRCodeAdded;
@@ -44,9 +46,12 @@ namespace QRTracking
 
         private QRCodeWatcher qrTracker;
         private bool capabilityInitialized = false;
-#if WINDOWS_UWP
-        private Windows.Security.Authorization.AppCapabilityAccess.AppCapabilityAccessStatus accessStatus;
+#if true//WINDOWS_UWP
+        //private Windows.Security.Authorization.AppCapabilityAccess.AppCapabilityAccessStatus accessStatus;
+        private QRCodeWatcherAccessStatus accessStatus;
+
 #endif
+
 
         public System.Guid GetIdForQRCode(string qrCodeData)
         {
@@ -74,18 +79,22 @@ namespace QRTracking
         {
 
         }
-#if WINDOWS_UWP
+
+#if !UNITY_EDITOR
         async private void RequestCapability()
         {
-            Windows.Security.Authorization.AppCapabilityAccess.AppCapability cap = Windows.Security.Authorization.AppCapabilityAccess.AppCapability.Create("webcam");
-            accessStatus = await cap.RequestAccessAsync();
+           // Windows.Security.Authorization.AppCapabilityAccess.AppCapability cap = Windows.Security.Authorization.AppCapabilityAccess.AppCapability.Create("webcam");
+           // accessStatus = await cap.RequestAccessAsync();
+           
+            accessStatus = await QRCodeWatcher.RequestAccessAsync();
             capabilityInitialized = true;
         }
 #endif
         // Use this for initialization
         protected virtual void Start()
         {
-#if WINDOWS_UWP
+            IsSupported = QRCodeWatcher.IsSupported();
+#if !UNITY_EDITOR
             RequestCapability();
 #endif
         }
@@ -116,46 +125,18 @@ namespace QRTracking
         {
             if (qrTracker != null && !IsTrackerRunning)
             {
-                int tries = 0;
-                do
+                Debug.Log("QRCodesManager starting QRCodeWatcher");
+                try
                 {
-                    Debug.Log("QRCodesManager starting QRCodeWatcher");
-                    StartResult = (qrTracker.Start());
-                    Debug.Log("QRCodesManager starting QRCodeWatcher result:" + StartResult);
-
-                    if (StartResult == QRCodeWatcherStartResult.DeviceNotConnected)
-                    {
-                        System.Threading.Thread.Sleep(500);
-                    }
-                    else
-                    {
-                        break;
-                    }
-                } while (++tries <= 3);
-
-                if (StartResult == QRCodeWatcherStartResult.Success)
-                {
+                    qrTracker.Start();
                     IsTrackerRunning = true;
-                    
-                    var handlers = QRCodesTrackingStateChanged;
-                    if (handlers != null)
-                    {
-                        handlers(this, true);
-                    }
+                    QRCodesTrackingStateChanged?.Invoke(this, true);
                 }
-            }
-            else
-            {
-#if WINDOWS_UWP
-                if (accessStatus == Windows.Security.Authorization.AppCapabilityAccess.AppCapabilityAccessStatus.DeniedByUser ||
-                    accessStatus == Windows.Security.Authorization.AppCapabilityAccess.AppCapabilityAccessStatus.DeniedBySystem)
+                catch(Exception ex)
                 {
-                    StartResult = QRCodeWatcherStartResult.AccessDenied;
-                    Debug.Log("QRCodesManager starting QRCodeWatcher result:" + StartResult);
+                    Debug.Log("QRCodesManager starting QRCodeWatcher Exception:" + ex.ToString());
                 }
-#endif
             }
-
         }
 
         public void StopQRTracking()
@@ -168,7 +149,7 @@ namespace QRTracking
                     qrTracker.Stop();
                     qrCodesList.Clear();
                 }
-                StartResult = QRCodeWatcherStartResult.DeviceNotConnected;
+
                 var handlers = QRCodesTrackingStateChanged;
                 if (handlers != null)
                 {
@@ -184,9 +165,9 @@ namespace QRTracking
             bool found = false;
             lock (qrCodesList)
             {
-                if (qrCodesList.ContainsKey(args.Code.NodeId))
+                if (qrCodesList.ContainsKey(args.Code.Id))
                 {
-                    qrCodesList.Remove(args.Code.NodeId);
+                    qrCodesList.Remove(args.Code.Id);
                     found = true;
                 }
             }
@@ -207,10 +188,10 @@ namespace QRTracking
             bool found = false;
             lock (qrCodesList)
             {
-                if (qrCodesList.ContainsKey(args.Code.NodeId))
+                if (qrCodesList.ContainsKey(args.Code.Id))
                 {
                     found = true;
-                    qrCodesList[args.Code.NodeId] = args.Code;
+                    qrCodesList[args.Code.Id] = args.Code;
                 }
             }
             if (found)
@@ -229,7 +210,7 @@ namespace QRTracking
 
             lock (qrCodesList)
             {
-                qrCodesList[args.Code.NodeId] = args.Code;
+                qrCodesList[args.Code.Id] = args.Code;
             }
             var handlers = QRCodeAdded;
             if (handlers != null)
@@ -245,19 +226,30 @@ namespace QRTracking
 
         private void Update()
         {
-            if (qrTracker == null && capabilityInitialized)
+            if (qrTracker == null && capabilityInitialized && IsSupported)
             {
+#if true
+                if (accessStatus == QRCodeWatcherAccessStatus.Allowed)
+                {
+                    SetupQRTracking();
+                }
+                else
+                {  
+                    Debug.Log("Capability access status : " + accessStatus);
+                }
+#else
 #if WINDOWS_UWP
                 if (accessStatus == Windows.Security.Authorization.AppCapabilityAccess.AppCapabilityAccessStatus.Allowed)
                 {
 #endif
-                    SetupQRTracking();
+                SetupQRTracking();
 #if WINDOWS_UWP
                 }
                 else
                 {  
                     Debug.Log("Webcam capability is needed : " + accessStatus);
                 }
+#endif
 #endif
             }
         }
