@@ -46,12 +46,8 @@ namespace QRTracking
 
         private QRCodeWatcher qrTracker;
         private bool capabilityInitialized = false;
-#if true//WINDOWS_UWP
-        //private Windows.Security.Authorization.AppCapabilityAccess.AppCapabilityAccessStatus accessStatus;
         private QRCodeWatcherAccessStatus accessStatus;
-
-#endif
-
+        private System.Threading.Tasks.Task<QRCodeWatcherAccessStatus> capabilityTask;
 
         public System.Guid GetIdForQRCode(string qrCodeData)
         {
@@ -80,23 +76,13 @@ namespace QRTracking
 
         }
 
-#if !UNITY_EDITOR
-        async private void RequestCapability()
-        {
-           // Windows.Security.Authorization.AppCapabilityAccess.AppCapability cap = Windows.Security.Authorization.AppCapabilityAccess.AppCapability.Create("webcam");
-           // accessStatus = await cap.RequestAccessAsync();
-           
-            accessStatus = await QRCodeWatcher.RequestAccessAsync();
-            capabilityInitialized = true;
-        }
-#endif
         // Use this for initialization
-        protected virtual void Start()
+        async protected virtual void Start()
         {
             IsSupported = QRCodeWatcher.IsSupported();
-#if !UNITY_EDITOR
-            RequestCapability();
-#endif
+            capabilityTask = QRCodeWatcher.RequestAccessAsync();
+            accessStatus = await capabilityTask;
+            capabilityInitialized = true;
         }
 
         private void SetupQRTracking()
@@ -228,7 +214,6 @@ namespace QRTracking
         {
             if (qrTracker == null && capabilityInitialized && IsSupported)
             {
-#if true
                 if (accessStatus == QRCodeWatcherAccessStatus.Allowed)
                 {
                     SetupQRTracking();
@@ -237,20 +222,6 @@ namespace QRTracking
                 {  
                     Debug.Log("Capability access status : " + accessStatus);
                 }
-#else
-#if WINDOWS_UWP
-                if (accessStatus == Windows.Security.Authorization.AppCapabilityAccess.AppCapabilityAccessStatus.Allowed)
-                {
-#endif
-                SetupQRTracking();
-#if WINDOWS_UWP
-                }
-                else
-                {  
-                    Debug.Log("Webcam capability is needed : " + accessStatus);
-                }
-#endif
-#endif
             }
         }
     }
