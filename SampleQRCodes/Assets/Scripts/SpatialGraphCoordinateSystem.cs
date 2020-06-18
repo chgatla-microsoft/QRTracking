@@ -14,7 +14,6 @@ namespace QRTracking
         private SpatialCoordinateSystem CoordinateSystem = null;
 #endif
         private System.Guid id;
-        private UnityEngine.XR.WSA.PositionalLocatorState CurrentState { get; set; }
         public System.Guid Id
         {
             get
@@ -27,58 +26,54 @@ namespace QRTracking
                 id = value;
 #if WINDOWS_UWP
                 CoordinateSystem = Windows.Perception.Spatial.Preview.SpatialGraphInteropPreview.CreateCoordinateSystemForNode(id);
+                if (CoordinateSystem == null)
+                {
+                    Debug.Log("Id= " + id + " Failed to acquire coordinate system");
+                }
 #endif
             }
         }
 
         void Awake()
         {
-            CurrentState = UnityEngine.XR.WSA.PositionalLocatorState.Unavailable;
         }
 
         // Use this for initialization
         void Start()
         {
-            UnityEngine.XR.WSA.WorldManager.OnPositionalLocatorStateChanged += WorldManager_OnPositionalLocatorStateChanged;
-            CurrentState = UnityEngine.XR.WSA.WorldManager.state;
 #if WINDOWS_UWP
             if (CoordinateSystem == null)
             {
                 CoordinateSystem = Windows.Perception.Spatial.Preview.SpatialGraphInteropPreview.CreateCoordinateSystemForNode(id);
+                if (CoordinateSystem == null)
+                {
+                    Debug.Log("Id= " + id + " Failed to acquire coordinate system");
+                }
             }
 #endif
         }
 
-        private void WorldManager_OnPositionalLocatorStateChanged(UnityEngine.XR.WSA.PositionalLocatorState oldState, UnityEngine.XR.WSA.PositionalLocatorState newState)
-        {
-            CurrentState = newState;
-            if (newState == UnityEngine.XR.WSA.PositionalLocatorState.Active)
-            {
-                // This simply activates/deactivates this object and all children when tracking changes
-                gameObject.SetActive(true);
-            }
-            else
-            {
-                gameObject.SetActive(false);
-            }
-        }
-
         private void UpdateLocation()
         {
-            if (CurrentState == UnityEngine.XR.WSA.PositionalLocatorState.Active)
             {
 #if WINDOWS_UWP
                 if (CoordinateSystem == null)
                 {
                     CoordinateSystem = Windows.Perception.Spatial.Preview.SpatialGraphInteropPreview.CreateCoordinateSystemForNode(id);
+
+                    if (CoordinateSystem == null)
+                    {
+                        Debug.Log("Id= " + id + " Failed to acquire coordinate system");
+                    }
                 }
 
                 if (CoordinateSystem != null)
                 {
                     Quaternion rotation = Quaternion.identity;
                     Vector3 translation = new Vector3(0.0f, 0.0f, 0.0f);
-
-                    SpatialCoordinateSystem rootSpatialCoordinateSystem = (SpatialCoordinateSystem)System.Runtime.InteropServices.Marshal.GetObjectForIUnknown(UnityEngine.XR.WSA.WorldManager.GetNativeISpatialCoordinateSystemPtr());
+                    
+                    System.IntPtr rootCoordnateSystemPtr = UnityEngine.XR.WindowsMR.WindowsMREnvironment.OriginSpatialCoordinateSystem;
+                    SpatialCoordinateSystem rootSpatialCoordinateSystem = (SpatialCoordinateSystem)System.Runtime.InteropServices.Marshal.GetObjectForIUnknown(rootCoordnateSystemPtr);
 
                     // Get the relative transform from the unity origin
                     System.Numerics.Matrix4x4? relativePose = CoordinateSystem.TryGetTransformTo(rootSpatialCoordinateSystem);
@@ -116,6 +111,10 @@ namespace QRTracking
 
                         gameObject.transform.SetPositionAndRotation(pose.position, pose.rotation);
                         //Debug.Log("Id= " + id + " QRPose = " +  pose.position.ToString("F7") + " QRRot = "  +  pose.rotation.ToString("F7"));
+                    }
+                    else
+                    {
+                       // Debug.Log("Id= " + id + " Unable to locate qrcode" );
                     }
                 }
                 else
