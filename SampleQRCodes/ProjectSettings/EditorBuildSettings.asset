@@ -7,5 +7,9 @@ EditorBuildSettings:
   m_Scenes:
   - enabled: 1
     path: Assets/Scenes/QRCodesSample.unity
-    guid: 0453e76e9b063c445b10a27eaf11c08c
-  m_configObjects: {}
+    guid: 9fc0d4010bbf28b4594072e72b8655ab
+  m_configObjects:
+    Unity.XR.WindowsMR.Settings: {fileID: 11400000, guid: cee32befc5b00be4997eb11dcc1bae86,
+      type: 2}
+    com.unity.xr.management.loader_settings: {fileID: 11400000, guid: 6c3d673cc4307c84ca4017f66197679d,
+      type: 2}
