@@ -12,6 +12,12 @@
     "precompiledReferences": [],
     "autoReferenced": true,
     "defineConstraints": [],
-    "versionDefines": [],
+    "versionDefines": [
+        {
+            "name": "com.microsoft.mixedreality.openxr",
+            "expression": "0.0.1",
+            "define": "MIXED_REALITY_OPENXR"
+        }
+    ],
     "noEngineReferences": false
 }

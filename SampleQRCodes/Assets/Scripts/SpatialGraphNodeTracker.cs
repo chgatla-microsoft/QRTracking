@@ -8,7 +8,7 @@ using Microsoft.MixedReality.Toolkit.Utilities;
 
 namespace QRTracking
 {
-    public class SpatialGraphCoordinateSystem : MonoBehaviour
+    public class SpatialGraphNodeTracker : MonoBehaviour
     {
 #if WINDOWS_UWP
         private SpatialCoordinateSystem CoordinateSystem = null;
