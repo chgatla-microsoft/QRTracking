@@ -1,5 +1,14 @@
 {
   "dependencies": {
+    "com.microsoft.mixedreality.openxr": {
+      "version": "file:E:/Unity-MR-Plugin/com.microsoft.mixedreality.openxr",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.unity.xr.openxr": "0.1.2-preview.2",
+        "com.unity.xr.arsubsystems": "4.0.9"
+      }
+    },
     "com.microsoft.mixedreality.toolkit.foundation": {
       "version": "2.5.3",
       "depth": 0,
@@ -64,6 +73,13 @@
       "dependencies": {},
       "url": "https://packages.unity.com"
     },
+    "com.unity.inputsystem": {
+      "version": "1.1.0-preview.1",
+      "depth": 2,
+      "source": "registry",
+      "dependencies": {},
+      "url": "https://packages.unity.com"
+    },
     "com.unity.subsystemregistration": {
       "version": "1.0.6",
       "depth": 1,
@@ -108,7 +124,7 @@
       }
     },
     "com.unity.xr.arsubsystems": {
-      "version": "4.0.8",
+      "version": "4.0.9",
       "depth": 1,
       "source": "registry",
       "dependencies": {
@@ -126,19 +142,36 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.xr.legacyinputhelpers": {
-      "version": "2.1.6",
-      "depth": 1,
+      "version": "2.1.7",
+      "depth": 3,
       "source": "registry",
-      "dependencies": {},
+      "dependencies": {
+        "com.unity.modules.vr": "1.0.0",
+        "com.unity.modules.xr": "1.0.0"
+      },
       "url": "https://packages.unity.com"
     },
     "com.unity.xr.management": {
-      "version": "3.2.16",
+      "version": "4.0.0-pre.2",
+      "depth": 2,
+      "source": "registry",
+      "dependencies": {
+        "com.unity.modules.subsystems": "1.0.0",
+        "com.unity.modules.vr": "1.0.0",
+        "com.unity.modules.xr": "1.0.0",
+        "com.unity.xr.legacyinputhelpers": "2.1.7",
+        "com.unity.subsystemregistration": "1.0.6"
+      },
+      "url": "https://packages.unity.com"
+    },
+    "com.unity.xr.openxr": {
+      "version": "0.1.2-preview.2",
       "depth": 1,
       "source": "registry",
       "dependencies": {
+        "com.unity.xr.management": "4.0.0-pre.2",
         "com.unity.xr.legacyinputhelpers": "2.1.2",
-        "com.unity.subsystemregistration": "1.0.6"
+        "com.unity.inputsystem": "1.1.0-preview.1"
       },
       "url": "https://packages.unity.com"
     },
