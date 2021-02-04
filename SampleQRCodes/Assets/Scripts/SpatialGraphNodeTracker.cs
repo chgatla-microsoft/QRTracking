@@ -16,17 +16,14 @@ namespace QRTracking
 
         public System.Guid Id
         {
-            get
-            {
-                return _id;
-            }
+            get => _id;
 
             set
             {
                 if (_id != value)
                 {
                     _id = value;
-                    node = SpatialGraphNode.FromStaticNodeId(_id);
+                    InitializeSpatialGraphNode(force: true);
                 }
             }
         }
@@ -34,21 +31,14 @@ namespace QRTracking
         // Use this for initialization
         void Start()
         {
-            if (node == null)
-            {
-                node = SpatialGraphNode.FromStaticNodeId(_id);
-            }
+            InitializeSpatialGraphNode();
         }
 
         // Update is called once per frame
         void Update()
         {
-            if (node == null)
-            {
-                node = SpatialGraphNode.FromStaticNodeId(_id);
-            }
-
-            if (node != null && node.TryLocate(out Pose pose))
+            InitializeSpatialGraphNode();
+            if (node != null && node.TryLocate(FrameTime.OnUpdate, out Pose pose))
             {
                 // If there is a parent to the camera that means we are using teleport and we should not apply the teleport
                 // to these objects so apply the inverse
@@ -61,6 +51,17 @@ namespace QRTracking
                 //Debug.Log("Id= " + id + " QRPose = " +  pose.position.ToString("F7") + " QRRot = "  +  pose.rotation.ToString("F7"));
             }
         }
+
+        private void InitializeSpatialGraphNode(bool force = false)
+        {
+            if (node == null || force)
+            {
+                node = (Id != System.Guid.Empty) ? SpatialGraphNode.FromStaticNodeId(Id) : null;
+                Debug.Log("Initialize SpatialGraphNode Id= " + Id);
+            }
+        }
+
+        private enum FrameTime { OnUpdate, OnBeforeRender }
 
         private class SpatialGraphNode
         {
@@ -84,7 +85,7 @@ namespace QRTracking
             }
 
 
-            public bool TryLocate(out Pose pose)
+            public bool TryLocate(FrameTime frameTime, out Pose pose)
             {
                 pose = Pose.identity;
 
