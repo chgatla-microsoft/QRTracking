@@ -22,6 +22,7 @@
     "com.unity.timeline": "1.2.14",
     "com.unity.ugui": "1.0.0",
     "com.unity.xr.management": "3.2.13",
+    "com.unity.xr.openxr": "file:E:/Unity-MR-Plugin/com.unity.xr.openxr-preview/package",
     "com.unity.xr.windowsmr": "4.2.1",
     "com.unity.modules.ai": "1.0.0",
     "com.unity.modules.androidjni": "1.0.0",
