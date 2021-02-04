@@ -3,10 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using Microsoft.MixedReality.Toolkit.Utilities;
 
-#if WINDOWS_UWP
-using Windows.Perception.Spatial;
-#endif
-
 namespace QRTracking
 {
     public class SpatialGraphNodeTracker : MonoBehaviour
@@ -67,7 +63,7 @@ namespace QRTracking
         {
             public System.Guid Id { get; private set; }
 #if WINDOWS_UWP
-            private SpatialCoordinateSystem CoordinateSystem = null;
+            private Windows.Perception.Spatial.SpatialCoordinateSystem CoordinateSystem = null;
 #endif
 
             public static SpatialGraphNode FromStaticNodeId(System.Guid id)
@@ -94,7 +90,8 @@ namespace QRTracking
                 Vector3 translation = new Vector3(0.0f, 0.0f, 0.0f);
                     
                 System.IntPtr rootCoordnateSystemPtr = UnityEngine.XR.WindowsMR.WindowsMREnvironment.OriginSpatialCoordinateSystem;
-                SpatialCoordinateSystem rootSpatialCoordinateSystem = (SpatialCoordinateSystem)System.Runtime.InteropServices.Marshal.GetObjectForIUnknown(rootCoordnateSystemPtr);
+                Windows.Perception.Spatial.SpatialCoordinateSystem rootSpatialCoordinateSystem = 
+                    (Windows.Perception.Spatial.SpatialCoordinateSystem)System.Runtime.InteropServices.Marshal.GetObjectForIUnknown(rootCoordnateSystemPtr);
 
                 // Get the relative transform from the unity origin
                 System.Numerics.Matrix4x4? relativePose = CoordinateSystem.TryGetTransformTo(rootSpatialCoordinateSystem);
