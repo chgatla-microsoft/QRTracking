@@ -1,17 +1,15 @@
-﻿using System.Collections;
-
+﻿
 using System.Collections.Generic;
-
 using UnityEngine;
 
-using Microsoft.MixedReality.QR;
 namespace QRTracking
 {
     public class QRCodesVisualizer : MonoBehaviour
     {
         public GameObject qrCodePrefab;
 
-        private System.Collections.Generic.SortedDictionary<System.Guid, GameObject> qrCodesObjectsList;
+        private SortedDictionary<System.Guid, GameObject> qrCodesObjectsList;
+        private Queue<ActionData> pendingActions = new Queue<ActionData>();
         private bool clearExisting = false;
 
         struct ActionData
@@ -30,12 +28,6 @@ namespace QRTracking
                 this.type = type;
                 qrCode = qRCode;
             }
-        }
-
-        private System.Collections.Generic.Queue<ActionData> pendingActions = new Queue<ActionData>();
-        void Awake()
-        {
-
         }
 
         // Use this for initialization
@@ -98,6 +90,8 @@ namespace QRTracking
                 while (pendingActions.Count > 0)
                 {
                     var action = pendingActions.Dequeue();
+                    Debug.Log($"QRCodesVisualizer HandleEvents: {action.type}");
+
                     if (action.type == ActionData.Type.Added)
                     {
                         GameObject qrCodeObject = Instantiate(qrCodePrefab, new Vector3(0, 0, 0), Quaternion.identity);
