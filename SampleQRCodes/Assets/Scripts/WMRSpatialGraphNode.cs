@@ -7,13 +7,13 @@ namespace QRTracking.WindowsMR
     internal class SpatialGraphNode
     {
         public System.Guid Id { get; private set; }
-#if WINDOWS_UWP
+#if !MIXED_REALITY_OPENXR
             private Windows.Perception.Spatial.SpatialCoordinateSystem CoordinateSystem = null;
 #endif
 
         public static SpatialGraphNode FromStaticNodeId(System.Guid id)
         {
-#if WINDOWS_UWP
+#if !MIXED_REALITY_OPENXR
             var coordinateSystem = Windows.Perception.Spatial.Preview.SpatialGraphInteropPreview.CreateCoordinateSystemForNode(id);
             return coordinateSystem == null ? null :
                 new SpatialGraphNode()
@@ -31,7 +31,7 @@ namespace QRTracking.WindowsMR
         {
             pose = Pose.identity;
 
-#if WINDOWS_UWP
+#if !MIXED_REALITY_OPENXR
             Quaternion rotation = Quaternion.identity;
             Vector3 translation = new Vector3(0.0f, 0.0f, 0.0f);
                     
