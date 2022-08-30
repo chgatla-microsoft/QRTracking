@@ -3,14 +3,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-#if WINDOWS_UWP
-
-using Windows.Perception.Spatial;
-
-#endif
 namespace QRTracking
 {
-    [RequireComponent(typeof(QRTracking.SpatialGraphCoordinateSystem))]
+    [RequireComponent(typeof(QRTracking.SpatialGraphNodeTracker))]
     public class QRCode : MonoBehaviour
     {
         public Microsoft.MixedReality.QR.QRCode qrCode;
